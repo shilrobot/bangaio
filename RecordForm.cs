@@ -81,7 +81,7 @@ namespace BangaiO
 
             waveCap = new WaveCapture(guid, Fs, 32 * 1024, 50);
 
-            frontEnd = new FrontEnd(Fs, 1022.7);
+            frontEnd = new FrontEnd(Fs, 1022.76);
             //frontEnd.OutputBuffer = signalDetector1.InputBuffer;
             frontEnd.PhaseOutputBuffer = new Buffer<float>(1);
             frontEnd.PhaseOutputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(PhaseOutputBuffer_BufferFilled);
@@ -110,8 +110,20 @@ namespace BangaiO
             //bc1.OutputBuffer = histogram1.InputBuffer;
             //bc2.OutputBuffer = histogram2.InputBuffer;
 
+            Mux mux = new Mux();
+            ConvertToBytes c2b = new ConvertToBytes();
+
             decider1 = new Decider2(1);
             decider2 = new Decider2(2);
+
+            decider1.Mux = mux;
+            decider1.OutputBuffer = mux.InputBuffer1;
+            decider2.Mux = mux;
+            decider2.OutputBuffer = mux.InputBuffer2;
+            mux.OutputBuffer = c2b.InputBuffer;
+
+            Progress progress = new Progress();
+            c2b.OutputBuffer = progress.InputBuffer;
 
             bc1.OutputBuffer = decider1.InputBuffer;
             bc2.OutputBuffer = decider2.InputBuffer;

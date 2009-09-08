@@ -15,6 +15,8 @@ namespace BangaiO
         }
 
         public Buffer<float> InputBuffer = new Buffer<float>(32);
+        public Buffer<bool> OutputBuffer;
+        public Mux Mux;
         private int index;
         private const int TrainingSampleCount = 100;
         private int trainingSamples = 0;
@@ -22,7 +24,6 @@ namespace BangaiO
         private State state = State.Waiting;
         private Statistics oneStats = new Statistics();
         private Statistics zeroStats = new Statistics();
-
         private Statistics signalPower = new Statistics();
         private Statistics noisePower = new Statistics();
 
@@ -103,7 +104,7 @@ namespace BangaiO
                 float SNR = (float)(10 * Math.Log10(signalPower.Mean / noisePower.Mean));
                 if (SNR > bestSNR*1.1)
                 {
-                    Console.WriteLine("({0}) SNR: {1:0.0} dB", index, SNR);
+                    //Console.WriteLine("({0}) SNR: {1:0.0} dB", index, SNR);
                     bestSNR = SNR;
                 }
             }
@@ -132,6 +133,12 @@ namespace BangaiO
 
             sw.WriteLine("{0},{1}", x, thresh);
             sw.Flush();
+
+            if (Mux != null)
+                Mux.Select(index);
+
+            if(OutputBuffer != null)
+                OutputBuffer.Write(bit);
         }
 
 

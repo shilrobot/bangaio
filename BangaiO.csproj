@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="BitCombiner.cs" />
     <Compile Include="Buffer.cs" />
+    <Compile Include="ConvertToBytes.cs" />
     <Compile Include="Decider.cs" />
     <Compile Include="Decider2.cs" />
     <Compile Include="EyePlot.cs">
@@ -69,6 +70,7 @@
     <Compile Include="Histogram.Designer.cs">
       <DependentUpon>Histogram.cs</DependentUpon>
     </Compile>
+    <Compile Include="Mux.cs" />
     <Compile Include="PhasePlot.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -88,6 +90,7 @@
     <Compile Include="ProbabilityPlot.Designer.cs">
       <DependentUpon>ProbabilityPlot.cs</DependentUpon>
     </Compile>
+    <Compile Include="Progress.cs" />
     <Compile Include="SignalDetector.cs">
       <SubType>Component</SubType>
     </Compile>
