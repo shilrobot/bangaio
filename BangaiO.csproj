@@ -52,7 +52,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitCombiner.cs" />
     <Compile Include="Buffer.cs" />
+    <Compile Include="Decider.cs" />
+    <Compile Include="Decider2.cs" />
     <Compile Include="EyePlot.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -60,6 +63,12 @@
       <DependentUpon>EyePlot.cs</DependentUpon>
     </Compile>
     <Compile Include="FrontEnd.cs" />
+    <Compile Include="Histogram.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Histogram.Designer.cs">
+      <DependentUpon>Histogram.cs</DependentUpon>
+    </Compile>
     <Compile Include="PhasePlot.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -86,6 +95,8 @@
       <DependentUpon>SignalDetector.cs</DependentUpon>
     </Compile>
     <Compile Include="Splitter.cs" />
+    <Compile Include="Statistics.cs" />
+    <Compile Include="UnitOffset.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="VUMeter.cs">
       <SubType>Component</SubType>

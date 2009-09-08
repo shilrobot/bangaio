@@ -10,6 +10,7 @@ using System.IO;
 
 namespace BangaiO
 {
+    // TODO: Break this into a separate detector & UI element
     public partial class SignalDetector : Control
     {
         private enum SignalState
@@ -20,7 +21,7 @@ namespace BangaiO
         }
 
         const int WindowSize = 32;
-        const int FailedWindowsBeforeCarrierLost = 5;
+        const int FailedWindowsBeforeCarrierLost = 7; // each window is ~ 16 msec atm, given that they're 1/2 bits
 
         public Buffer<float> InputBuffer = new Buffer<float>(WindowSize);
         public Buffer<float> OutputBuffer;
@@ -33,6 +34,17 @@ namespace BangaiO
         {
             InitializeComponent();
             InputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(InputBuffer_BufferFilled);
+        }
+
+        public void Reset()
+        {
+            InputBuffer.Clear();
+            state = SignalState.NotDetected;
+            fadeCount = 0;
+            firstDetectedFrame = false;
+            Invalidate();
+            sw.Close();
+            sw = new StreamWriter("signal_detector.txt");
         }
 
         void InputBuffer_BufferFilled(float[] buffer, int bufSize)
@@ -83,6 +95,14 @@ namespace BangaiO
                     if(fadeCount == 0)
                         EnterState(SignalState.NotDetected);
                 }
+            }
+
+            for (int i = 0; i < bufSize; ++i)
+            {
+                if (state == SignalState.NotDetected)
+                    sw.WriteLine("{0},0", buffer[i]);
+                else
+                    sw.WriteLine("0,{0}", buffer[i]);
             }
 
             if (state != SignalState.NotDetected)

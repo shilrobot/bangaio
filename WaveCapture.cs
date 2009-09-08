@@ -9,7 +9,7 @@ using System.IO;
 
 namespace BangaiO
 {
-    public class WaveCapture
+    public class WaveCapture : IDisposable
     {
         private enum State
         {
@@ -20,20 +20,21 @@ namespace BangaiO
 
         public Buffer<float> OutputBuffer;
 
-        private State state = State.Initial;
+        private DirectSoundCapture capture;
         private CaptureBuffer captureBuffer;
+
+        private State state = State.Initial;
         private Timer timer;
         private int lastReadPos = 0;
         private int whichByte = 0;
         private byte[] buf;
         private byte lowByte = 0;
+        private bool disposed = false;
         
         // bufferSize is a SAMPLE COUNT
         // NOTE: we always capture 16 bits/sample
         public WaveCapture(Guid deviceGuid, int Fs, int bufferSize, int timerInterval)
         {
-            DirectSoundCapture capture = new DirectSoundCapture(deviceGuid);
-
             CaptureBufferDescription desc = new CaptureBufferDescription();
             desc.BufferBytes = bufferSize * 2;
             desc.ControlEffects = false;
@@ -46,13 +47,40 @@ namespace BangaiO
             desc.Format.BlockAlignment = 2;
             desc.Format.AverageBytesPerSecond = Fs * 2;
 
-            buf = new byte[bufferSize*2];
+            buf = new byte[bufferSize * 2];
 
+            capture = new DirectSoundCapture(deviceGuid);
             captureBuffer = new CaptureBuffer(capture, desc);
 
             timer = new Timer();
             timer.Interval = timerInterval;
             timer.Tick += new EventHandler(timer_Tick);
+        }
+
+        ~WaveCapture()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (captureBuffer != null)
+                captureBuffer.Dispose();
+            if (capture != null)
+                capture.Dispose();
+
+            if (disposing)
+                GC.SuppressFinalize(this);
+
+            disposed = true;
         }
 
         private void CaptureRange(int start, int end)

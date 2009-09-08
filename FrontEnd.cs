@@ -51,6 +51,9 @@ namespace BangaiO
                 data[i] -= dc;
         }
 
+
+        static float peakSNR = 0.0f;
+
         private double DetectPhase(float[] data, int count, int startSample)
         {
             double corrRe = 0.0f;
@@ -65,6 +68,33 @@ namespace BangaiO
                 corrRe += a * value;
                 corrIm += b * value;
             }
+            
+            
+            /*float invCount = 1.0f / count;
+            // This is just for the positive frequency, so we have to multiply by two
+            float voltage = 2.0f * (float)Math.Sqrt(corrRe * corrRe + corrIm * corrIm);
+            voltage = voltage * invCount;
+
+            float signalPower = 0.5f * voltage * voltage;
+
+            float power = 0.0f;
+            for (int i = 0; i < count; ++i)
+                power += invCount * data[i] * data[i];
+
+            float noisePower = power - signalPower;
+            float SNR = 10.0f * (float)Math.Log10(power / noisePower);
+
+            if (SNR > peakSNR)
+            {
+                Console.WriteLine("Peak SNR: {0:0.0} dB", SNR);
+                peakSNR = SNR;
+            }
+
+            Console.WriteLine("Total: {0:0.0} dB -- Signal: {1:0.0} dB -- Noise: {2:0.0} dB -- SNR",
+                                10 * Math.Log10(power),
+                                10 * Math.Log10(signalPower),
+                                10 * Math.Log10(power-signalPower));*/
+            
 
             return Math.Atan2(corrIm, corrRe);
         }

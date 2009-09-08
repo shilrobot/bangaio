@@ -24,9 +24,17 @@ namespace BangaiO
             // TODO: DC removal?
 
             float invSize = 1.0f / bufSize;
+
+            float dc = 0;
+            for (int i = 0; i < bufSize; ++i)
+                dc += buffer[i] * invSize;
+
             float power = 0.0f;
             for (int i = 0; i < bufSize; ++i)
-                power += buffer[i] * buffer[i] * invSize;
+            {
+                float x = buffer[i] - dc;
+                power += x * x * invSize;
+            }
 
             float db = 10.0f * (float)Math.Log10(power);
 

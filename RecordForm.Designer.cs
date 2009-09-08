@@ -32,12 +32,13 @@
             this.label1 = new System.Windows.Forms.Label();
             this.dbLabel = new System.Windows.Forms.Label();
             this.recordBtn = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.histogram1 = new BangaiO.Histogram();
+            this.signalDetector1 = new BangaiO.SignalDetector();
             this.eyePlot1 = new BangaiO.EyePlot();
             this.phasePlot2 = new BangaiO.PhasePlot();
             this.vuMeter1 = new BangaiO.VUMeter();
-            this.signalDetector1 = new BangaiO.SignalDetector();
-            this.label2 = new System.Windows.Forms.Label();
-            this.probabilityPlot1 = new BangaiO.ProbabilityPlot();
+            this.histogram2 = new BangaiO.Histogram();
             this.SuspendLayout();
             // 
             // deviceCombo
@@ -81,11 +82,37 @@
             this.recordBtn.UseVisualStyleBackColor = true;
             this.recordBtn.CheckedChanged += new System.EventHandler(this.recordBtn_CheckedChanged);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(227, 63);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(87, 13);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Carrier Detected:";
+            // 
+            // histogram1
+            // 
+            this.histogram1.Location = new System.Drawing.Point(259, 282);
+            this.histogram1.Name = "histogram1";
+            this.histogram1.Size = new System.Drawing.Size(223, 165);
+            this.histogram1.TabIndex = 10;
+            this.histogram1.Text = "histogram1";
+            // 
+            // signalDetector1
+            // 
+            this.signalDetector1.Location = new System.Drawing.Point(318, 56);
+            this.signalDetector1.Name = "signalDetector1";
+            this.signalDetector1.Size = new System.Drawing.Size(34, 27);
+            this.signalDetector1.TabIndex = 8;
+            this.signalDetector1.Text = "signalDetector1";
+            this.signalDetector1.Click += new System.EventHandler(this.signalDetector1_Click);
+            // 
             // eyePlot1
             // 
             this.eyePlot1.Location = new System.Drawing.Point(15, 282);
             this.eyePlot1.Name = "eyePlot1";
-            this.eyePlot1.Size = new System.Drawing.Size(275, 165);
+            this.eyePlot1.Size = new System.Drawing.Size(238, 165);
             this.eyePlot1.TabIndex = 6;
             this.eyePlot1.Text = "eyePlot1";
             // 
@@ -93,7 +120,7 @@
             // 
             this.phasePlot2.Location = new System.Drawing.Point(15, 108);
             this.phasePlot2.Name = "phasePlot2";
-            this.phasePlot2.Size = new System.Drawing.Size(588, 168);
+            this.phasePlot2.Size = new System.Drawing.Size(695, 168);
             this.phasePlot2.TabIndex = 5;
             this.phasePlot2.Text = "phasePlot2";
             // 
@@ -107,38 +134,21 @@
             this.vuMeter1.TabIndex = 3;
             this.vuMeter1.Text = "vuMeter1";
             // 
-            // signalDetector1
+            // histogram2
             // 
-            this.signalDetector1.Location = new System.Drawing.Point(318, 56);
-            this.signalDetector1.Name = "signalDetector1";
-            this.signalDetector1.Size = new System.Drawing.Size(34, 27);
-            this.signalDetector1.TabIndex = 8;
-            this.signalDetector1.Text = "signalDetector1";
-            this.signalDetector1.Click += new System.EventHandler(this.signalDetector1_Click);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(227, 63);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(87, 13);
-            this.label2.TabIndex = 9;
-            this.label2.Text = "Carrier Detected:";
-            // 
-            // probabilityPlot1
-            // 
-            this.probabilityPlot1.Location = new System.Drawing.Point(296, 282);
-            this.probabilityPlot1.Name = "probabilityPlot1";
-            this.probabilityPlot1.Size = new System.Drawing.Size(307, 165);
-            this.probabilityPlot1.TabIndex = 10;
-            this.probabilityPlot1.Text = "probabilityPlot1";
+            this.histogram2.Location = new System.Drawing.Point(488, 282);
+            this.histogram2.Name = "histogram2";
+            this.histogram2.Size = new System.Drawing.Size(223, 165);
+            this.histogram2.TabIndex = 11;
+            this.histogram2.Text = "histogram2";
             // 
             // RecordForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(615, 552);
-            this.Controls.Add(this.probabilityPlot1);
+            this.ClientSize = new System.Drawing.Size(722, 552);
+            this.Controls.Add(this.histogram2);
+            this.Controls.Add(this.histogram1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.signalDetector1);
             this.Controls.Add(this.recordBtn);
@@ -167,7 +177,8 @@
         private System.Windows.Forms.CheckBox recordBtn;
         private SignalDetector signalDetector1;
         private System.Windows.Forms.Label label2;
-        private ProbabilityPlot probabilityPlot1;
+        private Histogram histogram1;
+        private Histogram histogram2;
     }
 }
 

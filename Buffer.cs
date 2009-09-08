@@ -43,5 +43,10 @@ namespace BangaiO
                     Dispatch();
             }
         }
+
+        public void Clear()
+        {
+            bufferPos = 0;
+        }
     }
 }

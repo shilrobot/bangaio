@@ -13,7 +13,7 @@ namespace BangaiO
     {
         private Pen grayPen =new Pen(Color.FromArgb(128, 128, 128));
         private Pen darkGrayPen =new Pen(Color.FromArgb(80, 80, 80));
-        private Pen greenPen =new Pen(Color.FromArgb(0, 255, 0));
+        private Pen greenPen =new Pen(Color.FromArgb(80,0, 255, 0));
 
         public Buffer<PointF> InputBuffer = new Buffer<PointF>(4096);
 
