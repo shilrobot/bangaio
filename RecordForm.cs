@@ -114,6 +114,11 @@ namespace BangaiO
             decider1.Output.Connect(firstOneWins.Input1);
             decider2.Output.Connect(firstOneWins.Input2);
 
+            firstOneWins.Output.Connect(convertToBytes.Input);
+
+            convertToBytes.Output.Connect(progress.Input);
+
+            // TODO: Look into reset signal crap...
 
             phasePlot2.Clear();
             phasePlot2.Reset();

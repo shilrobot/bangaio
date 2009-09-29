@@ -6,8 +6,31 @@ using System.IO;
 
 namespace BangaiO
 {
+    // Converts individual bit values to byte values.
+    // This involves waiting for the sync period (atlernating 101010101...) to end,
+    // and then reading bits LSB first and assembling them into bytes.
+    // The end of the sync period looks like this, on the wire (with nibbles grouped):
+    //
+    // ... 0101 0101 0000 XXXX XXXX ...
+    //                    ^
+    //                    |
+    //                    +-- data starts here
+
+    // FSM Transition table
+    //
+    // State      |    0           1
+    // -----------+-----------------------
+    // Initial    | ExpectOne   ExpectZero
+    // ExpectZero | ExpectOne   Error
+    // ExpectOne  | Zero1       ExpectZero
+    // Zero1      | Zero2       Error
+    // Zero2      | Active      Error
+    // Active     | Active      Active
+    // Error      | Error       Error
+
     public class ConvertToBytes
     {
+
         private enum State
         {
             Initial,
@@ -29,7 +52,6 @@ namespace BangaiO
         public ConvertToBytes()
         {
             Input.BufferFilled += new InputPin<bool>.BufferFilledHandler(Input_BufferFilled);
-            //fs = new FileStream("out.bin", FileMode.Create, FileAccess.Write);
         }
 
         void Input_BufferFilled(bool[] buffer, int bufSize)
@@ -47,12 +69,6 @@ namespace BangaiO
 
         private void BitReceived(bool bit)
         {
-            /*if(state != State.Active &&
-                state != State.Error)
-            {
-                Console.WriteLine("Bit {0}", bit?"1":"0");
-            }*/
-
             switch(state)
             {
                 case State.Initial:
@@ -96,10 +112,6 @@ namespace BangaiO
                     ++currBit;
                     if (currBit == 8)
                     {
-                        /*Console.WriteLine("{0:X2}", currByte);
-                        byte[] bytes = new byte[] { currByte };
-                        fs.Write(bytes, 0, 1);
-                        fs.Flush();*/
                         Output.Write(currByte);
                         currBit = 0;
                         currByte = 0;

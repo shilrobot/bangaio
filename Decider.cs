@@ -6,6 +6,8 @@ using System.IO;
 
 namespace BangaiO
 {
+    // TODO: Use less latency once the initial lock-on is completed (i.e., don't add an extra 32 ms once
+    // the beginning is done)
     public class Decider
     {
         private enum State
@@ -16,7 +18,6 @@ namespace BangaiO
 
         public InputPin<float> Input = new InputPin<float>(32);
         public OutputPin<bool> Output = new OutputPin<bool>();
-        //public Mux Mux;
         private int index;
         private const int TrainingSampleCount = 100;
         private int trainingSamples = 0;

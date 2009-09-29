@@ -56,8 +56,6 @@ namespace BangaiO
         }
 
 
-        static float peakSNR = 0.0f;
-
         private double DetectPhase(float[] data, int count, int startSample)
         {
             double corrRe = 0.0f;

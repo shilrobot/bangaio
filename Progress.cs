@@ -5,6 +5,24 @@ using System.Text;
 
 namespace BangaiO
 {
+    // Handles extracting the payload from a transmission, at the byte level.
+    // The bytes transmitted are divided into 5 regions:
+    // 1. SYNC.
+    //      This is not handled here, but rather in Decider & ConvertToBytes. Looks like AA AA AA ... AA 0A
+    //      if converted to bytes.
+    // 2. HEADER.
+    //      byte 0: File type (0x02 for map, 0x03 for replay)
+    //      byte 1: Repeated file type
+    //      byte 2-3: Little-endian, 16-bit payload size.
+    //      byte 4-5: Little-endian, 16-bit payload size. (repeated)
+    // 3. PAYLOAD DATA.
+    //      Structure depends on file type; always contains the number of bytes specified in the HEADER region.
+    // 4. CHECKSUM.
+    //      bytes 0-4: Little-endian, 32-bit checksum.
+    //                 The checksum is the arithmetic sum of all bytes in the PAYLOAD DATA region.
+    // 5. ZEROS.
+    //      The output is padded with zeros for a while, before the signal ceases entirely.
+    //      We reset when the CHECKSUM region is reached, so it's not really handled here (or anywhere.)
     class Progress
     {
         private enum State
@@ -77,6 +95,7 @@ namespace BangaiO
             {
                 if (byteIndex == 0 || byteIndex == 1)
                 {
+                    // TODO: Allow 0x03 for replays
                     if (b != 0x02)
                         Completed(true);
                     else
