@@ -53,9 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitCombiner.cs" />
+    <Compile Include="Decider.cs" />
     <Compile Include="InputPin.cs" />
     <Compile Include="ConvertToBytes.cs" />
-    <Compile Include="Decider2.cs" />
     <Compile Include="EyePlot.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -8,26 +8,33 @@ namespace BangaiO
 {
     public class Decider
     {
-        public Buffer<float> InputBuffer = new Buffer<float>(256);
-        public Buffer<bool> OutputBuffer;
+        private enum State
+        {
+            Waiting,
+            Locked
+        }
 
-        public int TrainingSamples = 100;
-        private int trainingCounter = 0;
+        public InputPin<float> Input = new InputPin<float>(32);
+        public OutputPin<bool> Output = new OutputPin<bool>();
+        //public Mux Mux;
+        private int index;
+        private const int TrainingSampleCount = 100;
+        private int trainingSamples = 0;
+
+        private State state = State.Waiting;
         private Statistics oneStats = new Statistics();
         private Statistics zeroStats = new Statistics();
-        private bool alternate = false;
-        private List<bool> output = new List<bool>();
-        private int idx;
+        private Statistics signalPower = new Statistics();
+        private Statistics noisePower = new Statistics();
+
         private StreamWriter sw;
+        private float bestSNR = 0.0f;
 
-        private Statistics sigPowerStats = new Statistics();
-        private Statistics noisePowerStats = new Statistics();
-
-        public Decider(int idx)
+        public Decider(int index)
         {
-            this.idx = idx;
-            InputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(InputBuffer_BufferFilled);
-            sw = new StreamWriter(String.Format("decode{0}.txt", idx));
+            this.index = index;
+            Input.BufferFilled += new InputPin<float>.BufferFilledHandler(InputBuffer_BufferFilled);
+            sw = new StreamWriter(String.Format("decider{0}.txt",index));
         }
 
         public void Finish()
@@ -37,78 +44,103 @@ namespace BangaiO
 
         void InputBuffer_BufferFilled(float[] buffer, int bufSize)
         {
-            for (int i = 0; i < bufSize; ++i)
+            if(state == State.Waiting)
             {
-                float x = buffer[i];
+                float invSize = 1.0f / bufSize;
+                float mean = 0;
+                for (int i = 0; i < bufSize; ++i)
+                    mean += buffer[i]*invSize;
 
-                if (trainingCounter < TrainingSamples)
+                bool lastBit = buffer[0] > mean;
+                int flips = 0;
+
+                for (int i = 1; i < bufSize; ++i)
                 {
-                    if (alternate)
-                        oneStats.AddSample(x);
-                    else
-                        zeroStats.AddSample(x);
-                    alternate = !alternate;
-                    ++trainingCounter;
-                    
-                    if(trainingCounter == TrainingSamples)
-                    {
-                        if (zeroStats.Mean > oneStats.Mean)
-                        {
-                            Statistics temp = zeroStats;
-                            zeroStats = oneStats;
-                            oneStats = temp;
-                        }
-
-                        Console.WriteLine("Decider {0} trained: 0={1},{2}, 1={3},{4}, ratio={5:0.0}",
-                                        idx,
-                                        zeroStats.Mean, zeroStats.StandardDeviation,
-                                        oneStats.Mean, oneStats.StandardDeviation,
-                                        oneStats.Mean / zeroStats.Mean);
-
-                    }
+                    bool newBit = buffer[i] > mean;
+                    if (newBit != lastBit)
+                        ++flips;
+                    lastBit = newBit;
                 }
-                else
+
+                //Console.WriteLine("flips={0}", flips);
+
+                if (flips == (bufSize - 1))
                 {
-                    float thresh = (zeroStats.Mean + oneStats.Mean) * 0.5f;
-                    //float probA = statsA.Probability(x);
-                    //float probB = statsB.Probability(x);
+                    Statistics tmpOneStats = new Statistics();
+                    Statistics tmpZeroStats = new Statistics();
 
-                    bool value;
-                    float refMean;
-
-                    if (x > thresh)
+                    for (int i = 0; i < bufSize; ++i)
                     {
-                        value = true;
-                        refMean = oneStats.Mean;
-                        oneStats.AddSample(x);
-                    }
-                    else
-                    {
-                        value = false;
-                        refMean = zeroStats.Mean;
-                        zeroStats.AddSample(x);
+                        if (buffer[i] > mean)
+                            tmpOneStats.AddSample(buffer[i]);
+                        else
+                            tmpZeroStats.AddSample(buffer[i]);
                     }
 
-                    float sigPower = refMean * refMean;
-                    float diff = refMean - x;
-                    float noisePower = diff * diff;
-
-                    sigPowerStats.AddSample(sigPower);
-                    noisePowerStats.AddSample(noisePower);
-
-                    //output.Add(value);
-                    sw.WriteLine("{0},{1}",x,thresh);
-
-                    if (OutputBuffer != null)
+                    // sanity check means
+                    // TODO: Work out what the probability of this really is for realistic noise levels
+                    if (tmpOneStats.Mean / tmpZeroStats.Mean > 1.5f)
                     {
-                        OutputBuffer.Write(value);
+                        state = State.Locked;
+
+                        Console.WriteLine("Decider {0} locked on!", index);
+
+                        for (int i = 0; i < bufSize; ++i)
+                        {
+                            Bit(buffer[i], mean);
+                        }
                     }
                 }
             }
+            else if (state == State.Locked)
+            {
 
-            double snr = 10 * Math.Log10(sigPowerStats.Mean / noisePowerStats.Mean);
-            Console.WriteLine("{0} SNR: {1:0.0} dB", idx, snr);
+                for (int i = 0; i < bufSize; ++i)
+                {
+                    float thresh = 0.5f * (oneStats.Mean + zeroStats.Mean);
+                    Bit(buffer[i], thresh);
+                }
+
+                float SNR = (float)(10 * Math.Log10(signalPower.Mean / noisePower.Mean));
+                if (SNR > bestSNR*1.1)
+                {
+                    //Console.WriteLine("({0}) SNR: {1:0.0} dB", index, SNR);
+                    bestSNR = SNR;
+                }
+            }
         }
+
+        private void Bit(float x, float thresh)
+        {
+            bool bit = x > thresh;
+
+            float signal, noise;
+
+            if (bit)
+            {
+                signal = oneStats.Mean;
+                oneStats.AddSample(x);
+            }
+            else
+            {
+                signal = zeroStats.Mean;
+                zeroStats.AddSample(x);
+            }
+
+            noise = x - signal;
+            signalPower.AddSample(signal * signal);
+            noisePower.AddSample(noise * noise);
+
+            sw.WriteLine("{0},{1}", x, thresh);
+            sw.Flush();
+
+            /*if (Mux != null)
+                Mux.Select(index);*/
+
+            if(Output != null)
+                Output.Write(bit);
+        }
+
 
     }
 }
