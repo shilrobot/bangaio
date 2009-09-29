@@ -12,13 +12,13 @@ namespace BangaiO
     public partial class Histogram : Plot
     {
         public const int BucketCount = 64;
-        public Buffer<float> InputBuffer = new Buffer<float>(1024);
+        public InputPin<float> InputBuffer = new InputPin<float>(1024);
         private int[] buckets = new int[BucketCount];
 
         public Histogram()
         {
             InitializeComponent();
-            InputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(InputBuffer_BufferFilled);
+            InputBuffer.BufferFilled += new InputPin<float>.BufferFilledHandler(InputBuffer_BufferFilled);
             LeftBound = 0;
             RightBound = BucketCount*1.2f;
             BottomBound = 0;

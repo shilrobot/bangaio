@@ -18,7 +18,7 @@ namespace BangaiO
             Done
         }
 
-        public Buffer<float> OutputBuffer;
+        public OutputPin<float> Output = new OutputPin<float>();
 
         private DirectSoundCapture capture;
         private CaptureBuffer captureBuffer;
@@ -101,7 +101,7 @@ namespace BangaiO
                 {
                     byte hiByte = buf[i];
                     short signed16 = (short)((hiByte << 8) | lowByte);
-                    OutputBuffer.Write(signed16*invMax);
+                    Output.Write(signed16*invMax);
                     whichByte = 0;
                 }
             }

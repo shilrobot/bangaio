@@ -19,8 +19,8 @@ namespace BangaiO
             Error
         }
 
-        public Buffer<bool> InputBuffer = new Buffer<bool>(128);
-        public Buffer<byte> OutputBuffer;
+        public InputPin<bool> Input = new InputPin<bool>();
+        public OutputPin<byte> Output = new OutputPin<byte>();
         private State state = State.Initial;
         private byte currByte = 0;
         private int currBit = 0;
@@ -28,14 +28,21 @@ namespace BangaiO
 
         public ConvertToBytes()
         {
-            InputBuffer.BufferFilled += new Buffer<bool>.BufferFilledHandler(InputBuffer_BufferFilled);
+            Input.BufferFilled += new InputPin<bool>.BufferFilledHandler(Input_BufferFilled);
             //fs = new FileStream("out.bin", FileMode.Create, FileAccess.Write);
         }
 
-        void InputBuffer_BufferFilled(bool[] buffer, int bufSize)
+        void Input_BufferFilled(bool[] buffer, int bufSize)
         {
             for (int i = 0; i < bufSize; ++i)
                 BitReceived(buffer[i]);
+        }
+
+        void Reset()
+        {
+            state = State.Initial;
+            currByte = 0;
+            currBit = 0;
         }
 
         private void BitReceived(bool bit)
@@ -93,7 +100,7 @@ namespace BangaiO
                         byte[] bytes = new byte[] { currByte };
                         fs.Write(bytes, 0, 1);
                         fs.Flush();*/
-                        OutputBuffer.Write(currByte);
+                        Output.Write(currByte);
                         currBit = 0;
                         currByte = 0;
                     }

@@ -53,9 +53,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BitCombiner.cs" />
-    <Compile Include="Buffer.cs" />
+    <Compile Include="InputPin.cs" />
     <Compile Include="ConvertToBytes.cs" />
-    <Compile Include="Decider.cs" />
     <Compile Include="Decider2.cs" />
     <Compile Include="EyePlot.cs">
       <SubType>Component</SubType>
@@ -70,7 +69,8 @@
     <Compile Include="Histogram.Designer.cs">
       <DependentUpon>Histogram.cs</DependentUpon>
     </Compile>
-    <Compile Include="Mux.cs" />
+    <Compile Include="FirstOneWins.cs" />
+    <Compile Include="OutputPin.cs" />
     <Compile Include="PhasePlot.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -91,12 +91,7 @@
       <DependentUpon>ProbabilityPlot.cs</DependentUpon>
     </Compile>
     <Compile Include="Progress.cs" />
-    <Compile Include="SignalDetector.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="SignalDetector.Designer.cs">
-      <DependentUpon>SignalDetector.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Receiver.cs" />
     <Compile Include="Splitter.cs" />
     <Compile Include="Statistics.cs" />
     <Compile Include="UnitOffset.cs" />

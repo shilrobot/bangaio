@@ -15,7 +15,7 @@ namespace BangaiO
         private Pen darkGrayPen =new Pen(Color.FromArgb(80, 80, 80));
         private Pen greenPen =new Pen(Color.FromArgb(80,0, 255, 0));
 
-        public Buffer<PointF> InputBuffer = new Buffer<PointF>(4096);
+        public InputPin<PointF> Input = new InputPin<PointF>(4096);
 
         public EyePlot()
         {
@@ -26,7 +26,7 @@ namespace BangaiO
             TopBound = 2.5f * 1.2f;
             BottomBound = -2.5f * 1.2f;
 
-            InputBuffer.BufferFilled += new Buffer<PointF>.BufferFilledHandler(InputBuffer_BufferFilled);
+            Input.BufferFilled += new InputPin<PointF>.BufferFilledHandler(InputBuffer_BufferFilled);
 
             this.AutoInvalidate = false;
         }

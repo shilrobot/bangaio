@@ -5,21 +5,23 @@ using System.Text;
 
 namespace BangaiO
 {
+    /*
     public class Splitter<T>
     {
-        public Buffer<T> InputBuffer;
-        public List<Buffer<T>> OutputBuffers = new List<Buffer<T>>();
+        public InputPin<T> InputBuffer;
+        public List<InputPin<T>> OutputBuffers = new List<InputPin<T>>();
 
         public Splitter(int bufSize)
         {
-            InputBuffer = new Buffer<T>(bufSize);
-            InputBuffer.BufferFilled += new Buffer<T>.BufferFilledHandler(InputBuffer_BufferFilled);
+            InputBuffer = new InputPin<T>(bufSize);
+            InputBuffer.BufferFilled += new InputPin<T>.BufferFilledHandler(InputBuffer_BufferFilled);
         }
 
         void InputBuffer_BufferFilled(T[] buffer, int bufSize)
         {
-            foreach (Buffer<T> outputBuf in OutputBuffers)
+            foreach (InputPin<T> outputBuf in OutputBuffers)
                 outputBuf.Write(buffer, bufSize);
         }
     }
+     * */
 }

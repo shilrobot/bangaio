@@ -13,8 +13,10 @@ namespace BangaiO
             Payload,
             Checksum,
             Error,
-            Done
+            //Done
         }
+
+        public event Action ResetSignal;
 
         private State state = State.Header;
 
@@ -25,11 +27,26 @@ namespace BangaiO
         private int computedChecksum = 0;
         private int theirChecksum = 0;
 
-        public Buffer<byte> InputBuffer = new Buffer<byte>(128);
+        public InputPin<byte> Input = new InputPin<byte>();
+
+        int count = 0;
 
         public Progress()
         {
-            InputBuffer.BufferFilled += new Buffer<byte>.BufferFilledHandler(InputBuffer_BufferFilled);
+            Input.BufferFilled += new InputPin<byte>.BufferFilledHandler(InputBuffer_BufferFilled);
+            Reset();
+        }
+
+        private void Reset()
+        {
+            byteIndex = 0;
+            state = State.Header;
+            size1 = 0;
+            size2 = 0;
+            size = 0;
+            computedChecksum = 0;
+            theirChecksum = 0;
+            count = 0;
         }
 
         void InputBuffer_BufferFilled(byte[] buffer, int bufSize)
@@ -37,8 +54,21 @@ namespace BangaiO
             for (int i = 0; i < bufSize; ++i)
                 ReceiveByte(buffer[i]);
 
-            if(state == State.Payload)
+            if (state == State.Payload && count == 128)
+            {
                 Console.WriteLine("{0}/{1} - {2:0.0}%", byteIndex, size, 100.0f * byteIndex / (float)size);
+                count = 0;
+            }
+            ++count;
+        }
+
+        void Completed(bool error)
+        {
+            // RESET
+            Reset();
+
+            if (ResetSignal != null)
+                ResetSignal();
         }
 
         void ReceiveByte(byte b)
@@ -48,7 +78,7 @@ namespace BangaiO
                 if (byteIndex == 0 || byteIndex == 1)
                 {
                     if (b != 0x02)
-                        state = State.Error;
+                        Completed(true);
                     else
                         ++byteIndex;
                 }
@@ -73,8 +103,7 @@ namespace BangaiO
                     if (size2 != size1)
                     {
                         Console.WriteLine("ERROR: Sizes don't match!");
-                        state = State.Error;
-                        return;
+                        Completed(true);
                     }
                     else
                         size = size1;
@@ -121,11 +150,11 @@ namespace BangaiO
                         Console.WriteLine("CHECKSUM FAIL");
                     else
                         Console.WriteLine("CHECKSUM OK :)");
-                    state = State.Done;
+
+
+                    Completed(theirChecksum != computedChecksum);
                 }
             }
-
-
         }
     }
 }

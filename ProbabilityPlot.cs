@@ -13,7 +13,7 @@ namespace BangaiO
     public partial class ProbabilityPlot : Plot
     {
         
-        public Buffer<float> InputBuffer = new Buffer<float>(64*2);
+        public InputPin<float> InputBuffer = new InputPin<float>(64*2);
         //private StreamWriter sw = new StreamWriter("bits.txt");
 
         private bool locked = false;
@@ -28,7 +28,7 @@ namespace BangaiO
         public ProbabilityPlot()
         {
             InitializeComponent();
-            InputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(InputBuffer_BufferFilled);
+            InputBuffer.BufferFilled += new InputPin<float>.BufferFilledHandler(InputBuffer_BufferFilled);
             AutoInvalidate = false;
         }
 

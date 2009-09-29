@@ -11,15 +11,15 @@ namespace BangaiO
 
         public event PowerUpdatedHandler PowerUpdated;
 
-        public Buffer<float> InputBuffer;
+        public InputPin<float> Input;
 
         public PowerMeter(int bufferSize)
         {
-            InputBuffer = new Buffer<float>(bufferSize);
-            InputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(InputBuffer_BufferFilled);
+            Input = new InputPin<float>(bufferSize);
+            Input.BufferFilled += new InputPin<float>.BufferFilledHandler(Input_BufferFilled);
         }
 
-        void InputBuffer_BufferFilled(float[] buffer, int bufSize)
+        void Input_BufferFilled(float[] buffer, int bufSize)
         {
             // TODO: DC removal?
 

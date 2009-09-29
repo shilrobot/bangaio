@@ -34,9 +34,9 @@ namespace BangaiO
         private WaveCapture waveCap;
         private PowerMeter powerMeter;
         private FrontEnd frontEnd;
-        private Decider2 decider1;
-        private Decider2 decider2;
-        private Buffer<float> phases = new Buffer<float>(5);
+        private Decider decider1;
+        private Decider decider2;
+        private InputPin<float> phases = new InputPin<float>(5);
 
         private bool recording = false;
 
@@ -79,66 +79,45 @@ namespace BangaiO
 
             const int Fs = 44100;
 
-            waveCap = new WaveCapture(guid, Fs, 32 * 1024, 50);
-
-            frontEnd = new FrontEnd(Fs, 1022.76);
-            //frontEnd.OutputBuffer = signalDetector1.InputBuffer;
-            frontEnd.PhaseOutputBuffer = new Buffer<float>(1);
-            frontEnd.PhaseOutputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(PhaseOutputBuffer_BufferFilled);
-            frontEnd.EyeOutputBuffer = eyePlot1.InputBuffer;
-
             powerMeter = new PowerMeter(Util.CalcBufferSize(0.1f, Fs));
-
-            Splitter<float> splitter = new Splitter<float>(1024);
-            splitter.OutputBuffers.Add(frontEnd.InputBuffer);
-            splitter.OutputBuffers.Add(powerMeter.InputBuffer);
-
-            //signalDetector1.OutputBuffer = probabilityPlot1.InputBuffer;
-            //signalDetector1.OutputBuffer = histogram1.InputBuffer;
-
-            UnitOffset<float> offset = new UnitOffset<float>(256);
-            BitCombiner bc1 = new BitCombiner(256);
-            BitCombiner bc2 = new BitCombiner(256);
-
-            Splitter<float> splitter2 = new Splitter<float>(256);
-            frontEnd.OutputBuffer = splitter2.InputBuffer;
-
-            //signalDetector1.OutputBuffer = splitter2.InputBuffer;
-            splitter2.OutputBuffers.Add(bc1.InputBuffer);
-            splitter2.OutputBuffers.Add(offset.InputBuffer);
-            offset.OutputBuffer = bc2.InputBuffer;
-            //bc1.OutputBuffer = histogram1.InputBuffer;
-            //bc2.OutputBuffer = histogram2.InputBuffer;
-
-            Mux mux = new Mux();
-            ConvertToBytes c2b = new ConvertToBytes();
-
-            decider1 = new Decider2(1);
-            decider2 = new Decider2(2);
-
-            decider1.Mux = mux;
-            decider1.OutputBuffer = mux.InputBuffer1;
-            decider2.Mux = mux;
-            decider2.OutputBuffer = mux.InputBuffer2;
-            mux.OutputBuffer = c2b.InputBuffer;
-
-            Progress progress = new Progress();
-            c2b.OutputBuffer = progress.InputBuffer;
-
-            bc1.OutputBuffer = decider1.InputBuffer;
-            bc2.OutputBuffer = decider2.InputBuffer;
-
-            waveCap.OutputBuffer = splitter.InputBuffer;
-
             powerMeter.PowerUpdated += new PowerMeter.PowerUpdatedHandler(powerMeter_PowerUpdated);
 
+            waveCap = new WaveCapture(guid, Fs, 32 * 1024, 50);
+            frontEnd = new FrontEnd(Fs, 1022.76);
+            UnitOffset<float> offset = new UnitOffset<float>();
+            BitCombiner combiner1 = new BitCombiner();
+            BitCombiner combiner2 = new BitCombiner();
+            decider1 = new Decider(1);
+            decider2 = new Decider(2);
+            FirstOneWins<bool> firstOneWins = new FirstOneWins<bool>();
+            ConvertToBytes convertToBytes = new ConvertToBytes();
+            Progress progress = new Progress();
 
-            signalDetector1.Reset();
+            // set up capture outputs
+            waveCap.Output.Connect(frontEnd.Input);
+            waveCap.Output.Connect(powerMeter.Input);
+
+            // set up front-end outputs
+            InputPin<float> phasePin = new InputPin<float>();
+            frontEnd.PhaseOutput.Connect(phasePin);
+            phasePin.BufferFilled += new InputPin<float>.BufferFilledHandler(PhaseOutputBuffer_BufferFilled);
+            frontEnd.EyeOutput.Connect(eyePlot1.Input);
+            frontEnd.Output.Connect(combiner1.Input);
+            frontEnd.Output.Connect(offset.Input);
+            offset.Output.Connect(combiner2.Input);
+
+            // Set up combiner outputs
+            combiner1.Output.Connect(decider1.Input);
+            combiner2.Output.Connect(decider2.Input);
+
+            // Set up decider outputs
+            decider1.Output.Connect(firstOneWins.Input1);
+            decider2.Output.Connect(firstOneWins.Input2);
+
+
             phasePlot2.Clear();
             phasePlot2.Reset();
             eyePlot1.Clear();
-            //probabilityPlot1.Clear();
-            //probabilityPlot1.Reset();
 
             waveCap.Start();
             deviceCombo.Enabled = false;
@@ -167,11 +146,6 @@ namespace BangaiO
                 StartRecording();
             else
                 StopRecording();
-        }
-
-        private void signalDetector1_Click(object sender, EventArgs e)
-        {
-
         }
 
     }

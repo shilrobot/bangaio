@@ -7,23 +7,27 @@ namespace BangaiO
 {
     public class BitCombiner
      {
-        public Buffer<float> InputBuffer;
-        public Buffer<float> OutputBuffer;
+        public InputPin<float> Input;
+        public OutputPin<float> Output = new OutputPin<float>();
 
         private bool first = true;
+
+        public BitCombiner() : this(2)
+        {
+        }
 
         public BitCombiner(int bufferSize)
         {
             if (bufferSize % 2 != 0)
                 throw new ArgumentException("BufferSize must be divisible by two", "bufferSize");
-            InputBuffer = new Buffer<float>(bufferSize);
-            InputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(InputBuffer_BufferFilled);
+            Input = new InputPin<float>(bufferSize);
+            Input.BufferFilled += new InputPin<float>.BufferFilledHandler(Input_BufferFilled);
         }
 
-        void InputBuffer_BufferFilled(float[] buffer, int bufSize)
+        void Input_BufferFilled(float[] buffer, int bufSize)
         {
             for (int i = 0; i < bufSize; i+=2)
-                OutputBuffer.Write(buffer[i] + buffer[i + 1]);
+                Output.Write(buffer[i] + buffer[i + 1]);
         }
     }
 }

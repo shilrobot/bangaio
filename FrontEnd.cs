@@ -8,26 +8,30 @@ using System.IO;
 namespace BangaiO
 {
     // Front-end demodulator: turns waveform into a stream of bits.
+    // This works by correlating a sine wave with an approximate carrier to small segments of the input
+    // audio stream; this tells us the correct phase without needing *exactly* the right frequency.
+    // Then, given the carrier, we can count the energy between zero-crossings to get the half-bit energies,
+    // which are output.
     public class FrontEnd
     {
         public double Fs { get; set; }
         public double Fc { get; set; } // APPROXIMATE carrier
 
         // TODO: Make some of these configurable?
-        private const int FrameSize = 4096;
+        private const int FrameSize = 2084;
         private const int LerpSamples = 512;
         private float[] frame = new float[FrameSize];
         private float[] frameCarrier = new float[FrameSize];
-        private int absoluteSample = 0;
+        private int absoluteSample = 0; // todo: hmm, do we lose accuracy here?
         private double lastPhase = 0;
 
         private float energy = 0;
         private float lastCarrier = 0;
 
-        public Buffer<float> InputBuffer = new Buffer<float>(FrameSize);
-        public Buffer<float> OutputBuffer = null;
-        public Buffer<float> PhaseOutputBuffer;
-        public Buffer<PointF> EyeOutputBuffer;
+        public InputPin<float> Input = new InputPin<float>(FrameSize);
+        public OutputPin<float> Output = new OutputPin<float>();
+        public OutputPin<float> PhaseOutput = new OutputPin<float>();
+        public OutputPin<PointF> EyeOutput = new OutputPin<PointF>();
 
         //private StreamWriter sw = new StreamWriter("out.txt");
 
@@ -35,7 +39,7 @@ namespace BangaiO
         {
             this.Fs = Fs;
             this.Fc = Fc;
-            InputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(InputBuffer_BufferFilled);
+            Input.BufferFilled += new InputPin<float>.BufferFilledHandler(InputBuffer_BufferFilled);
         }
 
         // TODO: Way to flush the last frame through w/ appended zeros
@@ -145,7 +149,7 @@ namespace BangaiO
                 double parameter = 2 * Math.PI * Fc * t - currPhase;
                 dest[i] = (float)Math.Cos(parameter);
 
-                EyeOutputBuffer.Write(new PointF((float)NormalizePhase(parameter + Math.PI*0.5f), values[i]));
+                EyeOutput.Write(new PointF((float)NormalizePhase(parameter + Math.PI*0.5f), values[i]));
             }
         }
 
@@ -161,7 +165,7 @@ namespace BangaiO
                 if ((lastCarrier < 0 && carrier[i] >= 0) || (lastCarrier > 0 && carrier[i] <= 0))
                 {
                     //sw.WriteLine("{0}", energy);
-                    OutputBuffer.Write(energy);
+                    Output.Write(energy);
                     energy = newEnergy;
                 }
                 else
@@ -182,7 +186,7 @@ namespace BangaiO
             RemoveDC(frame, FrameSize);
 
             double newPhase = DetectPhase(frame, FrameSize, absoluteSample);
-            PhaseOutputBuffer.Write((float)newPhase);
+            PhaseOutput.Write((float)newPhase);
 
             GenerateCarrier(frame, frameCarrier, FrameSize, absoluteSample, LerpSamples, lastPhase, newPhase);
 

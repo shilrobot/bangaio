@@ -32,9 +32,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.dbLabel = new System.Windows.Forms.Label();
             this.recordBtn = new System.Windows.Forms.CheckBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.histogram1 = new BangaiO.Histogram();
-            this.signalDetector1 = new BangaiO.SignalDetector();
             this.eyePlot1 = new BangaiO.EyePlot();
             this.phasePlot2 = new BangaiO.PhasePlot();
             this.vuMeter1 = new BangaiO.VUMeter();
@@ -82,15 +80,6 @@
             this.recordBtn.UseVisualStyleBackColor = true;
             this.recordBtn.CheckedChanged += new System.EventHandler(this.recordBtn_CheckedChanged);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(227, 63);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(87, 13);
-            this.label2.TabIndex = 9;
-            this.label2.Text = "Carrier Detected:";
-            // 
             // histogram1
             // 
             this.histogram1.Location = new System.Drawing.Point(259, 282);
@@ -98,15 +87,6 @@
             this.histogram1.Size = new System.Drawing.Size(223, 165);
             this.histogram1.TabIndex = 10;
             this.histogram1.Text = "histogram1";
-            // 
-            // signalDetector1
-            // 
-            this.signalDetector1.Location = new System.Drawing.Point(318, 56);
-            this.signalDetector1.Name = "signalDetector1";
-            this.signalDetector1.Size = new System.Drawing.Size(34, 27);
-            this.signalDetector1.TabIndex = 8;
-            this.signalDetector1.Text = "signalDetector1";
-            this.signalDetector1.Click += new System.EventHandler(this.signalDetector1_Click);
             // 
             // eyePlot1
             // 
@@ -149,8 +129,6 @@
             this.ClientSize = new System.Drawing.Size(722, 552);
             this.Controls.Add(this.histogram2);
             this.Controls.Add(this.histogram1);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.signalDetector1);
             this.Controls.Add(this.recordBtn);
             this.Controls.Add(this.eyePlot1);
             this.Controls.Add(this.phasePlot2);
@@ -175,8 +153,7 @@
         private PhasePlot phasePlot2;
         private EyePlot eyePlot1;
         private System.Windows.Forms.CheckBox recordBtn;
-        private SignalDetector signalDetector1;
-        private System.Windows.Forms.Label label2;
+        //private SignalDetector signalDetector1;
         private Histogram histogram1;
         private Histogram histogram2;
     }

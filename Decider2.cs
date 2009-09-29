@@ -6,7 +6,7 @@ using System.IO;
 
 namespace BangaiO
 {
-    public class Decider2
+    public class Decider
     {
         private enum State
         {
@@ -14,9 +14,9 @@ namespace BangaiO
             Locked
         }
 
-        public Buffer<float> InputBuffer = new Buffer<float>(32);
-        public Buffer<bool> OutputBuffer;
-        public Mux Mux;
+        public InputPin<float> Input = new InputPin<float>(32);
+        public OutputPin<bool> Output = new OutputPin<bool>();
+        //public Mux Mux;
         private int index;
         private const int TrainingSampleCount = 100;
         private int trainingSamples = 0;
@@ -30,10 +30,10 @@ namespace BangaiO
         private StreamWriter sw;
         private float bestSNR = 0.0f;
 
-        public Decider2(int index)
+        public Decider(int index)
         {
             this.index = index;
-            InputBuffer.BufferFilled += new Buffer<float>.BufferFilledHandler(InputBuffer_BufferFilled);
+            Input.BufferFilled += new InputPin<float>.BufferFilledHandler(InputBuffer_BufferFilled);
             sw = new StreamWriter(String.Format("decider{0}.txt",index));
         }
 
@@ -134,11 +134,11 @@ namespace BangaiO
             sw.WriteLine("{0},{1}", x, thresh);
             sw.Flush();
 
-            if (Mux != null)
-                Mux.Select(index);
+            /*if (Mux != null)
+                Mux.Select(index);*/
 
-            if(OutputBuffer != null)
-                OutputBuffer.Write(bit);
+            if(Output != null)
+                Output.Write(bit);
         }
 
 
